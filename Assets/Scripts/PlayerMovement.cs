@@ -4,18 +4,24 @@ using UnityEngine;
 [RequireComponent (typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
+   [SerializeField] private float sensitivity = 2.0f;
    private CharacterController controller; 
    [SerializeField] private float playerSpeed = 2.0f;
    [SerializeField] private float jumpHeight = 1.0f;
    [SerializeField] private float gravityValue = -9.8f;
+   [SerializeField] private float bulletSpeed = 5;
+   [SerializeField] private GameObject bulletPrefab;
+   [SerializeField] private Transform firePoint;
+   [SerializeField] private float nextShot = 0.15f;
+   [SerializeField] private float fireDelay = 0.1f;
    private Vector2 _playerInput;
    private Vector2 playerVelocity;
    private bool jump;
    private bool isGrounded;
    private bool shoot;
-   [SerializeField] private float bulletSpeed = 5;
-   [SerializeField] private GameObject bulletPrefab;
-   [SerializeField] private Transform firePoint;
+   
+
+
    public void playerShoot(InputAction.CallbackContext context)
    {
     shoot = context.action.triggered;
@@ -43,6 +49,7 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+
         isGrounded = controller.isGrounded;
         if(isGrounded && playerVelocity.y < 0)
         {
@@ -60,12 +67,13 @@ public class PlayerMovement : MonoBehaviour
         playerVelocity.y += gravityValue * Time.deltaTime;
         controller.Move(playerVelocity * Time.deltaTime);
 
-        if(shoot)
+        if(shoot && Time.time > nextShot)
     {
         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
         Rigidbody Bulletrb = bullet.GetComponent<Rigidbody>();
         Bulletrb.AddForce(firePoint.forward * bulletSpeed, ForceMode.Impulse);
+        nextShot = Time.time + fireDelay;
+        
     }
     }
-
 }
